@@ -12,7 +12,7 @@ def doFileSystemBackup(config, dumpFileName):
   dumpFilePath = str.join("/", [ config['BackupDir'], dumpFileName ])
   dumpFileDict = analyzeDumpFileName(dumpFileName)
   dumpFileLevel = dumpFileDict['dumpLevel']
-  dumpFileSystem = str.join("/", ( [ "" ] + dumpFileDict['backupFilesystem'] ) )
+  dumpFileSystem = "/" + str.join("/", [ dumpFileDict['backupFilesystem'] ] )
   xfsdumpCommand = [ "sudo", "xfsdump", "-F", "-f", dumpFilePath, "-l", str(dumpFileLevel), dumpFileSystem ]
   print("Will execute following command:")
   print(xfsdumpCommand)
@@ -51,8 +51,8 @@ def removeOldDumpedFiles(dumpedFilesDict):
       dumpLevelDict = {}
       for dumpInstance in dumpsList:
         print(dumpedOnHostname, dumpedFileSystem, dumpInstance)
-        dumpLevelList[ dumpInstance[0] ] = dumpInstance
-      dumpLevelList = dumpLevelDict.keys()
+        dumpLevelDict[ dumpInstance[0] ] = dumpInstance
+      dumpLevelList = list(dumpLevelDict.keys())
       dumpLevelList.sort()
       olderValue = 0
       removeAll = False
@@ -77,7 +77,7 @@ def analyzeDumpFileName(dumpFileName):
   dumpFileNamePartList = dumpFileName.rpartition(".")[0].split("_")
   analyzedDumpFile = {}
   analyzedDumpFile['hostName'] = dumpFileNamePartList[0]
-  analyzedDumpFile['backupFilesystem'] = dumpFileNamePartList[1].split("-")
+  analyzedDumpFile['backupFilesystem'] = dumpFileNamePartList[1]
   analyzedDumpFile['dumpLevel'] = int(dumpFileNamePartList[2])
   return analyzedDumpFile
 
