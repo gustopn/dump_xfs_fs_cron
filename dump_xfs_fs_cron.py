@@ -16,6 +16,8 @@ def doFileSystemBackup(config, dumpFileName):
   xfsdumpCommand = [ "sudo", "xfsdump", "-F", "-f", dumpFilePath, "-l", str(dumpFileLevel), dumpFileSystem ]
   print("Will execute following command:")
   print(xfsdumpCommand)
+  with subprocess.Popen(xfsdumpCommand) as xfsdumpProcess:
+    pass
 
 def analyzeDumpDir(backupDir):
   dumpedFilesList = []
@@ -61,7 +63,7 @@ def removeOldDumpedFiles(dumpedFilesDict):
         currentInstanceMtime = dumpLevelDict[dumpLevelInstance][1]
         if olderValue < currentInstanceMtime:
           if dumpLevelInstance > 0:
-            if ( currentInstanceMtime - olderValue ) > ( dayLength * dumpLevelInstance * 2 ):
+            if ( currentInstanceMtime - olderValue ) > ( dayLength * ( 10 - dumpLevelInstance ) * 2 ):
               removeAll = True
               removalList.append(dumpLevelDict[dumpLevelInstance][2])
           olderValue = currentInstanceMtime
