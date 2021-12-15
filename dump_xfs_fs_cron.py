@@ -62,19 +62,37 @@ def removeOldDumpedFiles(dumpedFilesDict):
         print(dumpedOnHostname, dumpedFileSystem, dumpInstance)
         dumpLevelDict[ dumpInstance[0] ] = dumpInstance
       dumpLevelList = list(dumpLevelDict.keys())
+      # From here on dump level list is sorted.
       dumpLevelList.sort()
+      # Initalize modification time.
       olderValue = 0
+      # Dont remove everything yet.
       removeAll = False
+      # Now will look for files to remove.
       for dumpLevelInstance in dumpLevelList:
+        # In case we remove everything, just do it and go on.
         if removeAll:
           removalList.append(dumpLevelDict[dumpLevelInstance][2])
           continue
+        # Find out the modification time of current file.
         currentInstanceMtime = dumpLevelDict[dumpLevelInstance][1]
+        # In case the current file is newer, do something,
+        # otherwise remove everything.
         if olderValue < currentInstanceMtime:
+          if dumpLevelInstance > 8:
+            removeAll = True
+            removalList.append(dumpLevelDict[dumpLevelInstance][2])
+            continue
+          # Only do something if dump level is more than zero.
           if dumpLevelInstance > 0:
-            if ( currentInstanceMtime - olderValue ) > ( dayLength * ( 10 - dumpLevelInstance ) * 2 ):
+            # difference between currentMtime and formerMtime
+            currentMtimeDiff = currentInstanceMtime - olderValue
+            # is higher than difference set as treshold.
+            tresholdDiff = dayLength * ( 10 - dumpLevelInstance )
+            if currentMtimeDiff > tresholdDiff:
               removeAll = True
               removalList.append(dumpLevelDict[dumpLevelInstance][2])
+          # Set older value to current file modification time.
           olderValue = currentInstanceMtime
           continue
         removeAll = True
