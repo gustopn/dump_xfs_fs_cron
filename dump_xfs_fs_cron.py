@@ -33,7 +33,7 @@ def doFileSystemBackup(config, dumpFileName):
       for console_line in console_buff:
         print(console_line)
       console_out += xfsdumpProcess.stdout.read(32)
-    console_out += xfsdumpProcess.stdout.read(32)
+    console_out += xfsdumpProcess.stdout.read()
     print(console_out)
 
 def analyzeDumpDir(backupDir):
