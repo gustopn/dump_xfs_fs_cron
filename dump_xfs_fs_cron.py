@@ -49,7 +49,8 @@ def convertToDumpedFilesDict(dumpedFilesList):
     dumpedFilesDict[dumpedFilesInstance['hostName']][dumpedFilesInstance['backupFilesystem']].append(
       ( dumpedFilesInstance['dumpLevel'], dumpedFilesInstance['mtime'], dumpedFilesInstance['path'] )
     )
-  print(json.dumps(dumpedFilesDict, indent=2))
+  # TODO: Add verbose option
+  # print(json.dumps(dumpedFilesDict, indent=2))
   return dumpedFilesDict
 
 def removeOldDumpedFiles(dumpedFilesDict):
@@ -99,6 +100,8 @@ def removeOldDumpedFiles(dumpedFilesDict):
         removalList.append(dumpLevelDict[dumpLevelInstance][2])
   print("Will remove following file paths:")
   print(json.dumps(removalList, indent=2))
+  for removeFilePath in removalList:
+    os.unlink(removeFilePath)
 
 def analyzeDumpFileName(dumpFileName):
   dumpFileNamePartList = dumpFileName.rpartition(".")[0].split("_")
