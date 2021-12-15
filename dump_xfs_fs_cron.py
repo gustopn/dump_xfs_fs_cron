@@ -26,7 +26,15 @@ def doFileSystemBackup(config, dumpFileName):
   print("Will execute following command:")
   print(xfsdumpCommand)
   with subprocess.Popen(xfsdumpCommand, stdout=subprocess.PIPE, universal_newlines=True) as xfsdumpProcess:
-    print(xfsdumpProcess.stdout.read())
+    console_out = xfsdumpProcess.stdout.read(32)
+    while xfsdumpProcess.poll() is None:
+      console_buff = console_out.split("\n")
+      console_out = console_buff.pop()
+      for console_line in console_buff:
+        print(console_line)
+      console_out += xfsdumpProcess.stdout.read(32)
+    console_out += xfsdumpProcess.stdout.read(32)
+    print(console_out)
 
 def analyzeDumpDir(backupDir):
   dumpedFilesList = []
@@ -91,7 +99,10 @@ def removeOldDumpedFiles(dumpedFilesDict):
             # is higher than difference set as treshold.
             tresholdDiff = dayLength * ( 10 - dumpLevelInstance )
             if currentMtimeDiff > tresholdDiff:
+              # TODO: Add verbose option and check this again!
+              # print("Compared result is:", currentMtimeDiff / dayLength, "is higher than:", 10 - dumpLevelInstance)
               removeAll = True
+              removalList.append(dumpLevelDict[dumpLevelInstance - 1][2])
               removalList.append(dumpLevelDict[dumpLevelInstance][2])
           # Set older value to current file modification time.
           olderValue = currentInstanceMtime
@@ -197,3 +208,9 @@ if __name__ == "__main__":
     print(json.dumps(dumpFileNameList, indent=2))
   for dumpFileNameInstance in dumpFileNameList:
     doFileSystemBackup(config, dumpFileNameInstance)
+  # this is a quick fix - do remove stalled files after backup!
+  removeOldDumpedFiles(
+    convertToDumpedFilesDict(
+      analyzeDumpDir(config["BackupDir"])
+    )
+  )
