@@ -7,17 +7,26 @@ import subprocess
 import dbm
 import json
 import socket
+import shutil
 
 def doFileSystemBackup(config, dumpFileName):
   dumpFilePath = str.join("/", [ config['BackupDir'], dumpFileName ])
   dumpFileDict = analyzeDumpFileName(dumpFileName)
   dumpFileLevel = dumpFileDict['dumpLevel']
   dumpFileSystem = "/" + str.join("/", [ dumpFileDict['backupFilesystem'] ] )
-  xfsdumpCommand = [ "sudo", "xfsdump", "-F", "-f", dumpFilePath, "-l", str(dumpFileLevel), dumpFileSystem ]
+  sudoExecutable = shutil.which("sudo")
+  if sudoExecutable is None:
+    print("ERROR: Can not find sudo executable, quitting!")
+    sys.exit(1)
+  xfsdumpExecutable = shutil.which("xfsdump")
+  if xfsdumpExecutable is None:
+    print("ERROR: Can not find xfsdump executable, quitting!")
+    sys.exit(1)
+  xfsdumpCommand = [ sudoExecutable, xfsdumpExecutable, "-F", "-f", dumpFilePath, "-l", str(dumpFileLevel), dumpFileSystem ]
   print("Will execute following command:")
   print(xfsdumpCommand)
-  with subprocess.Popen(xfsdumpCommand) as xfsdumpProcess:
-    pass
+  with subprocess.Popen(xfsdumpCommand, stdout=subprocess.PIPE, universal_newlines=True) as xfsdumpProcess:
+    print(xfsdumpProcess.stdout.read())
 
 def analyzeDumpDir(backupDir):
   dumpedFilesList = []
