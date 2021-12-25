@@ -209,8 +209,8 @@ if __name__ == "__main__":
   for dumpFileNameInstance in dumpFileNameList:
     doFileSystemBackup(config, dumpFileNameInstance)
   # this is a quick fix - do remove stalled files after backup!
-  removeOldDumpedFiles(
-    convertToDumpedFilesDict(
-      analyzeDumpDir(config["BackupDir"])
-    )
-  )
+  # removeOldDumpedFiles(
+  #   convertToDumpedFilesDict(
+  #     analyzeDumpDir(config["BackupDir"])
+  #   )
+  # )
